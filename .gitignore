@@ -87,3 +87,5 @@ Thumbs.db
 # 缓存目录
 cache/
 .cache/
+
+example.html

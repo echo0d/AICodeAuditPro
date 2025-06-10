@@ -47,6 +47,8 @@ python main.py -d ./your-project -b 50
 - `<project_md5>.graphml`：项目依赖关系图
 - `<project_md5>_审计结果.log`：详细的审计报告
 
+项目依赖关系图可以用`PyVis.py`生成为`html`文件
+
 ## 配置文件
 
 项目配置在`config.yaml`文件中，可以根据需要调整相关参数。
