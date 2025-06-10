@@ -1,0 +1,106 @@
+# LLM配置
+llm:
+  provider: deepseek  # 可选: openai, anthropic, azure, qwen, glm, deepseek
+  
+# OpenAI配置
+openai:
+  api_key: sk-BKR5huAmRgTd1qjwP6AWocZXvmgTjJ2UI46uiHi104YT4Jnh
+  base_url: https://api.openai-proxy.org/v1
+  max_tokens: 4000
+  model: gpt-4o-mini
+
+# Anthropic Claude配置
+anthropic:
+  api_key: ""
+  base_url: https://api.anthropic.com
+  max_tokens: 4000
+  model: claude-3-5-sonnet-20241022
+
+# Azure OpenAI配置
+azure:
+  api_key: ""
+  endpoint: ""
+  api_version: "2024-02-15-preview"
+  max_tokens: 4000
+  model: gpt-4o-mini
+
+# 阿里通义千问配置
+qwen:
+  api_key: ""
+  base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+  max_tokens: 2000
+  model: qwen-plus
+
+# 智谱GLM配置
+glm:
+  api_key: ""
+  base_url: https://open.bigmodel.cn/api/paas/v4
+  max_tokens: 4000
+  model: glm-4
+
+# DeepSeek配置
+deepseek:
+  api_key: ""
+  base_url: https://api.deepseek.com
+  max_tokens: 4000
+  model: deepseek-chat
+project:
+  config_file_ext:
+  - .yaml
+  - .xml
+  - .json
+  - .conf
+  - .ini
+  - .toml
+  - .config
+  - .settings
+  exclude_dir:
+  - node_modules
+  - dist
+  - build
+  - out
+  - venv
+  - .venv
+  - env
+  - target
+  - vendor
+  - bower_components
+  - .git
+  - .svn
+  - .hg
+  - .idea
+  - .vscode
+  - .metadata
+  - nbproject
+  - test
+  - tests
+  - spec
+  - specs
+  - tmp
+  - temp
+  - cache
+  - logs
+  - docker
+  - containers
+  - k8s
+  - kube
+  - .circleci
+  - .github
+  - .travis
+  - docs
+  - doc
+  - .secrets
+  - .env
+  exclude_max_file_size: 1
+  source_file_ext:
+  - .py
+  - .go
+  - .js
+  - .java
+  - .cpp
+  - .php
+  - .aspx
+  - .asp
+  - .c
+  - .cs
+  - .h
