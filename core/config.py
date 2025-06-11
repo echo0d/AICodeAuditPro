@@ -13,44 +13,11 @@ def create_default_config(file_path):
     """创建默认配置文件"""
     default_config = {
         'llm': {
-            'provider': 'openai'
-        },
-        'openai': {
-            'base_url': 'https://api.openai-proxy.org/v1',
-            'api_key': "sk-BKR5huAmRgTd1qjwP6AWocZXvmgTjJ2UI46uiHi104YT4Jnh",
-            'model': 'gpt-4o-mini',
-            'max_tokens': 4000
-        },
-        'anthropic': {
-            'api_key': '',
-            'base_url': 'https://api.anthropic.com',
-            'model': 'claude-3-5-sonnet-20241022',
-            'max_tokens': 4000
-        },
-        'azure': {
-            'api_key': '',
-            'endpoint': '',
-            'api_version': '2024-02-15-preview',
-            'model': 'gpt-4o-mini',
-            'max_tokens': 4000
-        },
-        'qwen': {
-            'api_key': '',
-            'base_url': 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-            'model': 'qwen-plus',
-            'max_tokens': 2000
-        },
-        'glm': {
-            'api_key': '',
-            'base_url': 'https://open.bigmodel.cn/api/paas/v4',
-            'model': 'glm-4',
-            'max_tokens': 4000
-        },
-        'deepseek': {
+            'provider': 'deepseek',
             'api_key': '',
             'base_url': 'https://api.deepseek.com',
-            'model': 'deepseek-chat',
-            'max_tokens': 4000
+            'max_tokens': 4000,
+            'model': 'deepseek-chat'
         },
         'project': {
             "source_file_ext": [".py", ".go", ".js", ".java", ".cpp", ".php", ".aspx", ".asp", ".c", ".cs"],

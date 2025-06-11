@@ -8,21 +8,14 @@ class BaseLLMClient:
     
     def __init__(self, config):
         self.config = config
+        self.client = self._create_client()
     
-    async def chat_completion(self, messages: List[Dict[str, str]]) -> str:
-        """聊天完成接口"""
+    def _create_client(self):
+        """创建具体的客户端实例，子类需要重写此方法"""
         raise NotImplementedError
-
-class OpenAIClient(BaseLLMClient):
-    """OpenAI客户端"""
     
-    def __init__(self, config):
-        super().__init__(config)
-        self.client = AsyncOpenAI(
-            base_url=config.base_url,
-            api_key=config.api_key
-        )
     async def chat_completion(self, messages: List[Dict[str, str]]) -> str:
+        """通用的聊天完成接口"""
         response = await self.client.chat.completions.create(
             model=self.config.model,
             messages=messages,
@@ -31,23 +24,32 @@ class OpenAIClient(BaseLLMClient):
         if response.choices:
             return response.choices[0].message.content
         else:
-            raise Exception("No response from OpenAI")
+            raise Exception(f"No response from {self.__class__.__name__}")
+
+class OpenAIClient(BaseLLMClient):
+    """OpenAI客户端"""
+    
+    def _create_client(self):
+        return AsyncOpenAI(
+            base_url=self.config.base_url,
+            api_key=self.config.api_key
+        )
 
 class AnthropicClient(BaseLLMClient):
     """Anthropic Claude客户端"""
-    def __init__(self, config):
-        super().__init__(config)
+    
+    def _create_client(self):
         try:
             import anthropic
-            self.client = anthropic.AsyncAnthropic(
-                api_key=config.api_key,
-                base_url=config.base_url
+            return anthropic.AsyncAnthropic(
+                api_key=self.config.api_key,
+                base_url=self.config.base_url
             )
         except ImportError:
             raise ImportError("请安装anthropic包: pip install anthropic")
     
     async def chat_completion(self, messages: List[Dict[str, str]]) -> str:
-        # 转换消息格式，Claude需要特殊处理system消息
+        # Claude需要特殊处理system消息
         system_message = None
         user_messages = []
         
@@ -56,6 +58,7 @@ class AnthropicClient(BaseLLMClient):
                 system_message = msg["content"]
             else:
                 user_messages.append(msg)
+                
         response = await self.client.messages.create(
             model=self.config.model,
             max_tokens=self.config.max_tokens,
@@ -67,96 +70,55 @@ class AnthropicClient(BaseLLMClient):
 class AzureClient(BaseLLMClient):
     """Azure OpenAI客户端"""
     
-    def __init__(self, config):
-        super().__init__(config)
-        self.client = AsyncOpenAI(
-            api_key=config.api_key,
-            api_version=config.api_version,
-            azure_endpoint=config.endpoint
+    def _create_client(self):
+        # Azure需要特殊处理，需要endpoint和api_version字段
+        endpoint = getattr(self.config, 'endpoint', None) or self.config.base_url
+        api_version = getattr(self.config, 'api_version', '2024-02-15-preview')
+        
+        return AsyncOpenAI(
+            api_key=self.config.api_key,
+            api_version=api_version,
+            azure_endpoint=endpoint
         )
-    async def chat_completion(self, messages: List[Dict[str, str]]) -> str:
-        response = await self.client.chat.completions.create(
-            model=self.config.model,
-            messages=messages,
-            max_tokens=self.config.max_tokens
-        )
-        if response.choices:
-            return response.choices[0].message.content
-        else:
-            raise Exception("No response from Azure OpenAI")
 
 class QwenClient(BaseLLMClient):
     """阿里通义千问客户端"""
     
-    def __init__(self, config):
-        super().__init__(config)
-        self.client = AsyncOpenAI(
-            api_key=config.api_key,
-            base_url=config.base_url
+    def _create_client(self):
+        return AsyncOpenAI(
+            api_key=self.config.api_key,
+            base_url=self.config.base_url
         )
-    async def chat_completion(self, messages: List[Dict[str, str]]) -> str:
-        response = await self.client.chat.completions.create(
-            model=self.config.model,
-            messages=messages,
-            max_tokens=self.config.max_tokens
-        )
-        if response.choices:
-            return response.choices[0].message.content
-        else:
-            raise Exception("No response from Qwen")
 
 class GLMClient(BaseLLMClient):
     """智谱GLM客户端"""
     
-    def __init__(self, config):
-        super().__init__(config)
-        self.client = AsyncOpenAI(
-            api_key=config.api_key,
-            base_url=config.base_url
+    def _create_client(self):
+        return AsyncOpenAI(
+            api_key=self.config.api_key,
+            base_url=self.config.base_url
         )
-    
-    async def chat_completion(self, messages: List[Dict[str, str]]) -> str:        
-        response = await self.client.chat.completions.create(
-            model=self.config.model,
-            messages=messages,
-            max_tokens=self.config.max_tokens
-        )
-        if response.choices:
-            return response.choices[0].message.content
-        else:
-            raise Exception("No response from GLM")
 
 class DeepSeekClient(BaseLLMClient):
     """DeepSeek客户端"""
     
-    def __init__(self, config):
-        super().__init__(config)
-        self.client = AsyncOpenAI(
-            api_key=config.api_key,
-            base_url=config.base_url
+    def _create_client(self):
+        return AsyncOpenAI(
+            api_key=self.config.api_key,
+            base_url=self.config.base_url
         )
-    async def chat_completion(self, messages: List[Dict[str, str]]) -> str:
-        response = await self.client.chat.completions.create(
-            model=self.config.model,
-            messages=messages,
-            max_tokens=self.config.max_tokens
-        )
-        if response.choices:
-            return response.choices[0].message.content
-        else:
-            raise Exception("No response from DeepSeek")
 
 class LLMFactory:
     """LLM工厂类"""
     
     # 注册所有支持的LLM提供商
     _PROVIDERS = {
-        "openai": (OpenAIClient, "openai"),
-        "anthropic": (AnthropicClient, "anthropic"),
-        "azure": (AzureClient, "azure"),
-        "qwen": (QwenClient, "qwen"),
-        "glm": (GLMClient, "glm"),
-        "deepseek": (DeepSeekClient, "deepseek"),
+        "openai": OpenAIClient,
+        "anthropic": AnthropicClient,
+        "azure": AzureClient,
+        "qwen": QwenClient,
+        "glm": GLMClient,
+        "deepseek": DeepSeekClient,
     }
     
     @staticmethod
@@ -172,16 +134,11 @@ class LLMFactory:
             supported = ", ".join(LLMFactory._PROVIDERS.keys())
             raise ValueError(f"不支持的LLM提供商: {provider}。支持的提供商: {supported}")
         
-        # 获取客户端类和配置属性名
-        client_class, config_attr = LLMFactory._PROVIDERS[provider]
+        # 获取客户端类
+        client_class = LLMFactory._PROVIDERS[provider]
         
-        # 获取配置
-        config = getattr(C, config_attr, None)
-        if config is None:
-            raise ValueError(f"{provider.upper()}配置未找到，请在config.yaml中配置{config_attr}部分")
-        
-        # 创建并返回客户端实例
-        return client_class(config)
+        # 使用统一的llm配置
+        return client_class(C.llm)
     
     @classmethod
     def get_supported_providers(cls) -> List[str]:

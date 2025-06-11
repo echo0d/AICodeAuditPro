@@ -15,39 +15,6 @@ class SourceDir(BaseModel):
 
 class LLMConfig(BaseModel):
     provider: str
-
-class OpenAIConfig(BaseModel):
-    api_key: str
-    base_url: str
-    max_tokens: int
-    model: str
-
-class AnthropicConfig(BaseModel):
-    api_key: str
-    base_url: str
-    max_tokens: int
-    model: str
-
-class AzureConfig(BaseModel):
-    api_key: str
-    endpoint: str
-    api_version: str
-    max_tokens: int
-    model: str
-
-class QwenConfig(BaseModel):
-    api_key: str
-    base_url: str
-    max_tokens: int
-    model: str
-
-class GLMConfig(BaseModel):
-    api_key: str
-    base_url: str
-    max_tokens: int
-    model: str
-
-class DeepSeekConfig(BaseModel):
     api_key: str
     base_url: str
     max_tokens: int
@@ -61,12 +28,6 @@ class ProjectConfig(BaseModel):
 
 class Config(BaseModel):
     llm: LLMConfig
-    openai: Optional[OpenAIConfig] = None
-    anthropic: Optional[AnthropicConfig] = None
-    azure: Optional[AzureConfig] = None
-    qwen: Optional[QwenConfig] = None
-    glm: Optional[GLMConfig] = None
-    deepseek: Optional[DeepSeekConfig] = None
     project: ProjectConfig
 
 class CodeUnit(BaseModel):

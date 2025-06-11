@@ -10,11 +10,9 @@ from tqdm import tqdm
 
 from audit import scan_project_struct, print_source_dir, traverse_source_dir_bfs, get_all_source_files_bfs
 from audit.agent import agent_1, agent_2
-from audit.tool import gen_text_from_path
 from core import C
 from core.models import SourceFile
-from utils import is_cmd_mode, gen_line_code, get_code_by_line, visualize_graph, gen_graph_by_codeunits, calculate_md5, \
-    find_all_paths, write_file
+from utils import is_cmd_mode, gen_graph_by_codeunits, calculate_md5, find_all_paths, write_file, gen_text_from_path
 
 
 def init():
@@ -45,7 +43,7 @@ async def async_run_agent_1(source_file_list:List[SourceFile],out_file,batch_siz
     logger.info(f"当前batch_size:{batch_size}")
     batches = [source_file_list[i:i + batch_size] for i in range(0, len(source_file_list), batch_size)]
     res_list=[]
-    logger.debug(source_file_list)
+    # logger.debug(source_file_list)
     for batch in tqdm(batches,total=len(batches),desc="异步并发执行中..."):
         tasks = [asyncio.create_task(agent_1(s)) for s in batch]
         r_list=await asyncio.gather(*tasks)
@@ -53,7 +51,7 @@ async def async_run_agent_1(source_file_list:List[SourceFile],out_file,batch_siz
             if r is None:
                 continue
             res_list.extend(r)
-            logger.debug(r)
+            # logger.debug(r)
     g=gen_graph_by_codeunits(res_list)
     #输出结果至临时目录
     nx.write_graphml(g, out_file)
@@ -67,7 +65,7 @@ async def async_run_agent_2(g:nx.Graph,out_file,batch_size=10):
         text_list.append(text)
     logger.info(f"当前batch_size:{batch_size}")
     logger.info(f"数据大小:{len(text_list)}")
-    logger.debug(text_list)
+    # logger.debug(text_list)
     batches = [text_list[i:i + batch_size] for i in range(0, len(text_list), batch_size)]
     res=""
     for batch in tqdm(batches, total=len(batches), desc="异步并发执行中..."):
@@ -90,7 +88,7 @@ def main():
     logger.info(f"项目MD5:{md5}")
     out_graph_file=f"{args.o}/{md5}.graphml"
     if not os.path.exists(out_graph_file):
-        source_file_lis=get_all_source_files_bfs(root_dir,chunk_token_size=C.openai.max_tokens)
+        source_file_lis=get_all_source_files_bfs(root_dir,chunk_token_size=C.llm.max_tokens)
         logger.info("调用异步处理Agent_1...")
         asyncio.run(async_run_agent_1(source_file_lis,out_file=out_graph_file,batch_size=args.b))
     else:
